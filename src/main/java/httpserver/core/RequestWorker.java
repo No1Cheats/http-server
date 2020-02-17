@@ -45,9 +45,7 @@ public class RequestWorker implements Runnable {
 
 		writer.println(); //empty line for correct http
 
-		String html = "<html><header><title>This is title</title></header><body> Hello world</body></html>";
-
-		writer.println(html);
+		writer.println("<html><header><title>This is title</title></header><body> Hello world</body></html>");
 
 		writer.flush();
 
