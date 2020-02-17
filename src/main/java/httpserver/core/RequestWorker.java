@@ -1,10 +1,7 @@
 package httpserver.core;
 
 import javax.swing.text.html.HTMLDocument;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Logger;
@@ -42,15 +39,15 @@ public class RequestWorker implements Runnable {
 
 		String line = scanner.nextLine();//Do some shizzle here
 		LOGGER.fine("Request line: " + line); //Second HTTP request is to ask favicon
+
 		//Read headers....
-
-		writer.println("HTTP/1.0 404 Not Found");
-
+		writer.println("HTTP/1.0 200 OK");
 
 		writer.println(); //empty line for correct http
-		writer.println();
 
-		writer.println("It's wednesday my Dudes");
+		String html = "<html><header><title>This is title</title></header><body> Hello world</body></html>";
+
+		writer.println(html);
 
 		writer.flush();
 
