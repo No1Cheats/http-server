@@ -1,0 +1,7 @@
+html{ background-color: #222; color: #e6e6e6; border-color: #e6e6e6; }
+h1,h2{ color: blueviolet; font-style: oblique; }
+#first-title{ color: aqua }
+a{color: red; font-style: oblique}
+a:hover{color: green}
+p::first-letter{font-size: 40px; font-weight: bold}
+h3{color: bisque;}

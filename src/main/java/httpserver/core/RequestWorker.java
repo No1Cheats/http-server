@@ -1,10 +1,20 @@
 package httpserver.core;
 
+import httpserver.core.protocol.HttpConstants;
+import httpserver.core.protocol.HttpRequest;
+import httpserver.core.protocol.HttpResponse;
+import httpserver.core.protocol.HttpStatus;
+
 import javax.swing.text.html.HTMLDocument;
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.logging.Logger;
+
+import static httpserver.core.protocol.HttpConstants.CONTENT_TYPE_HEADER;
 
 /**
  * The class RequestWorker is responsible for the processing of HTTP requests.
@@ -21,9 +31,11 @@ public class RequestWorker implements Runnable {
 
 	public void run() {
 		try (InputStream inputStream = socket.getInputStream(); OutputStream outputStream = socket.getOutputStream()) {
-			Scanner scanner = new Scanner(inputStream);
-			PrintWriter writer = new PrintWriter(outputStream);
-			processRequest(scanner, writer);
+			HttpRequest request = new HttpRequest(inputStream);
+			HttpResponse response = new HttpResponse(outputStream);
+			request.parse();
+			processRequest(request,response);
+			response.send();
 		} catch (IOException ex) {
 			LOGGER.severe(ex.toString());
 		} finally {
@@ -35,19 +47,23 @@ public class RequestWorker implements Runnable {
 		}
 	}
 
-	private void processRequest(Scanner scanner, PrintWriter writer) throws IOException {
+	private void processRequest(HttpRequest request, HttpResponse response) throws IOException {
+		//response.setStatus(HttpStatus.OK);
+		//response.writeBody("<html><body>Hello World</body></html>");
 
-		String line = scanner.nextLine();//Do some shizzle here
-		LOGGER.fine("Request line: " + line); //Second HTTP request is to ask favicon
+		String path = request.getPath();
+		Path filename = Paths.get(System.getProperty("document.root"));
+		if(Files.exists(filename) && Files.isRegularFile(filename)){
+			response.setStatus(HttpStatus.OK);
+			response.addHeader(CONTENT_TYPE_HEADER, Files.probeContentType(filename));
+			response.writeBody(Files.readAllBytes(filename));
+		} else{
+			response.setStatus(HttpStatus.NOT_FOUND);
+			response.writeBody("<html><h1>Not found</h1></html>");
+		}
 
-		//Read headers....
-		writer.println("HTTP/1.0 200 OK");
 
-		writer.println(); //empty line for correct http
 
-		writer.println("<html><header><title>This is title</title></header><body> Hello world</body></html>");
-
-		writer.flush();
 
 	}
 }
