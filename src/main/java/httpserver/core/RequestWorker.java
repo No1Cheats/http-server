@@ -48,8 +48,6 @@ public class RequestWorker implements Runnable {
 	}
 
 	private void processRequest(HttpRequest request, HttpResponse response) throws IOException {
-		//response.setStatus(HttpStatus.OK);
-		//response.writeBody("<html><body>Hello World</body></html>");
 
 		boolean success = FileDeliverer.deliverFile(request.getPath(), response);
 		if (!success){
