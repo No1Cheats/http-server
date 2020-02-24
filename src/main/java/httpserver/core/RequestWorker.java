@@ -51,19 +51,11 @@ public class RequestWorker implements Runnable {
 		//response.setStatus(HttpStatus.OK);
 		//response.writeBody("<html><body>Hello World</body></html>");
 
-		String path = request.getPath();
-		Path filename = Paths.get(System.getProperty("document.root"));
-		if(Files.exists(filename) && Files.isRegularFile(filename)){
-			response.setStatus(HttpStatus.OK);
-			response.addHeader(CONTENT_TYPE_HEADER, Files.probeContentType(filename));
-			response.writeBody(Files.readAllBytes(filename));
-		} else{
+		boolean success = FileDeliverer.deliverFile(request.getPath(), response);
+		if (!success){
 			response.setStatus(HttpStatus.NOT_FOUND);
 			response.writeBody("<html><h1>Not found</h1></html>");
 		}
-
-
-
 
 	}
 }
