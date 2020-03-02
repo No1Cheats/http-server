@@ -4,6 +4,7 @@ import httpserver.core.protocol.HttpConstants;
 import httpserver.core.protocol.HttpRequest;
 import httpserver.core.protocol.HttpResponse;
 import httpserver.core.protocol.HttpStatus;
+import httpserver.framework.FrontController;
 
 import javax.swing.text.html.HTMLDocument;
 import java.io.*;
@@ -50,6 +51,16 @@ public class RequestWorker implements Runnable {
 	private void processRequest(HttpRequest request, HttpResponse response) throws IOException {
 
 		boolean success = FileDeliverer.deliverFile(request.getPath(), response);
+
+		if(!success){
+			try {
+				success = FrontController.processRequest(request, response);
+			} catch (RuntimeException ex){
+				response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+		}
+
 		if (!success){
 			response.setStatus(HttpStatus.NOT_FOUND);
 			response.writeBody("<html><h1>Not found</h1></html>");
