@@ -21,6 +21,7 @@ public class ToDoListHandler implements RequestHandler {
         }
         String item = request.getParameter("toDoItem");
         if(item != null){
+            item = item.replaceAll("<", "!");
             myToDoList.add(item);
         }
         response.addParameter("toDoList", myToDoList);

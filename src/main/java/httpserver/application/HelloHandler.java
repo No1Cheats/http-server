@@ -9,6 +9,7 @@ public class HelloHandler implements RequestHandler {
     public String handleRequest(HttpRequest request, HttpResponse response) {
         if(request.isPost()){
             String username = request.getParameter("username");
+            username = username.replaceAll("<", "!");
             String greeting = username == null ? "" : "Hi " + username;
             response.addParameter("greeting", greeting);
             return "hello_post.html";
