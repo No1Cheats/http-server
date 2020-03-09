@@ -12,10 +12,10 @@ public class HelloHandler implements RequestHandler {
 
         String cookies = request.getHeader("Cookie");
         String lang = "en";
-        if(cookies != null){
-            for(String cookie : cookies.split(";")){
+        if (cookies != null) {
+            for (String cookie : cookies.split(";")) {
                 String token[] = cookie.trim().split("=");
-                if(token[0].equals("lang")){
+                if (token[0].equals("lang")) {
                     lang = token[1];
                 }
             }
@@ -23,8 +23,7 @@ public class HelloHandler implements RequestHandler {
 
         response.addHeader("Set-Cookie", "lang=" + lang + "; Max-Age=30");
 
-
-        if(request.isPost()){
+        if (request.isPost()) {
             String username = request.getParameter("username");
             PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
             username = policy.sanitize(username);
