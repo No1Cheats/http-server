@@ -1,5 +1,7 @@
 package httpserver.framework;
 
+import httpserver.application.todo.model.InvalidCredentialsException;
+import httpserver.application.todo.model.UserAlreadyExistsException;
 import httpserver.core.protocol.HttpRequest;
 import httpserver.core.protocol.HttpResponse;
 
@@ -20,7 +22,7 @@ public class FrontController {
 	 * Gets the request handler associated with the request path, lets it handle the HTTP request,
 	 * and renders the template whose name is returned by the handler.
 	 */
-	public static boolean processRequest(HttpRequest request, HttpResponse response) throws IOException {
+	public static boolean processRequest(HttpRequest request, HttpResponse response) throws IOException, UserAlreadyExistsException, InvalidCredentialsException {
 		RequestHandler handler = getRequestHandler(request.getPath());
 		if (handler == null) return false;
 		LOGGER.info("Dispatching request to " + handler.getClass().getName());

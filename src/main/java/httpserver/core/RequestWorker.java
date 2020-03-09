@@ -1,5 +1,7 @@
 package httpserver.core;
 
+import httpserver.application.todo.model.InvalidCredentialsException;
+import httpserver.application.todo.model.UserAlreadyExistsException;
 import httpserver.core.protocol.HttpConstants;
 import httpserver.core.protocol.HttpRequest;
 import httpserver.core.protocol.HttpResponse;
@@ -57,6 +59,10 @@ public class RequestWorker implements Runnable {
 				success = FrontController.processRequest(request, response);
 			} catch (RuntimeException ex){
 				response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+			} catch (UserAlreadyExistsException e) {
+				e.printStackTrace();
+			} catch (InvalidCredentialsException e) {
+				e.printStackTrace();
 			}
 
 		}
