@@ -17,24 +17,23 @@ public class ToDoListHandler implements RequestHandler {
 
     public String handleRequest(HttpRequest request, HttpResponse response) {
         Session session = SessionManager.getSession(request);
-        if(session == null){
+        if (session == null) {
             session = SessionManager.createSession(response);
             session.addData("toDoList", new ArrayList<String>());
         }
 
-        List<String> myToDoList = (List<String>)session.getData("toDoList");
-
+        List<String> myToDoList = (List<String>) session.getData("toDoList");
 
         String item = request.getParameter("toDoItem");
         PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
         item = policy.sanitize(item);
-        if(request.getParameter("remove") != null && !myToDoList.isEmpty()){
-            if(myToDoList.contains(item)){
+        if (request.getParameter("remove") != null && !myToDoList.isEmpty()) {
+            if (myToDoList.contains(item)) {
                 myToDoList.remove(item);
             }
             response.addParameter("toDoList", myToDoList);
             return "todo/todo.html";
-        } else if (request.getParameter("add") != null){
+        } else if (request.getParameter("add") != null) {
             myToDoList.add(item);
         }
         response.addParameter("toDoList", myToDoList);
