@@ -1,5 +1,6 @@
 package httpserver.application.todo.controller;
 
+import httpserver.application.todo.model.User;
 import httpserver.core.protocol.HttpRequest;
 import httpserver.core.protocol.HttpResponse;
 import httpserver.framework.RequestHandler;
@@ -17,26 +18,21 @@ public class ToDoListHandler implements RequestHandler {
 
     public String handleRequest(HttpRequest request, HttpResponse response) {
         Session session = SessionManager.getSession(request);
-        if (session == null) {
-            session = SessionManager.createSession(response);
-            session.addData("toDoList", new ArrayList<String>());
-        }
-
-        List<String> myToDoList = (List<String>) session.getData("toDoList");
+        User user = (User) session.getData("user");
 
         String item = request.getParameter("toDoItem");
         PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
         item = policy.sanitize(item);
-        if (request.getParameter("remove") != null && !myToDoList.isEmpty()) {
-            if (myToDoList.contains(item)) {
-                myToDoList.remove(item);
+        if (request.getParameter("remove") != null && !user.getTodos().isEmpty()) {
+            if (user.getTodos().contains(item)) {
+                user.removeTodo(item);
             }
-            response.addParameter("toDoList", myToDoList);
+            response.addParameter("toDoList", user.getTodos());
             return "todo/todo.html";
         } else if (request.getParameter("add") != null) {
-            myToDoList.add(item);
+            user.addTodo(item);
         }
-        response.addParameter("toDoList", myToDoList);
+        response.addParameter("toDoList", user.getTodos());
         return "todo/todo.html";
     }
 

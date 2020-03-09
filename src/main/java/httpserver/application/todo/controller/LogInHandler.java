@@ -8,8 +8,12 @@ import httpserver.core.protocol.HttpRequest;
 import httpserver.core.protocol.HttpResponse;
 import httpserver.core.protocol.HttpStatus;
 import httpserver.framework.RequestHandler;
+import httpserver.framework.Session;
+import httpserver.framework.SessionManager;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
+
+import java.util.ArrayList;
 
 public class LogInHandler implements RequestHandler {
     @Override
@@ -23,10 +27,16 @@ public class LogInHandler implements RequestHandler {
         User user = new User(username,password);
         if (request.getParameter("register") != null){
             myManager.register(user);
+            Session session = SessionManager.getSession(request);
+            if (session == null) {
+                session = SessionManager.createSession(response);
+            }
+            session.addData("user", user);
             return "todo/login.html";
         } else if (request.getParameter("login") != null){
             if(myManager.authenticate(username,password) != null){
-                return "/todo/todo.html";
+                response.addHeader("location", "/todo");
+                response.setStatus("302");
             }
         }
         return "todo/login.html";
