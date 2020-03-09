@@ -1,6 +1,8 @@
 package httpserver.application.todo.controller;
 
+import httpserver.application.todo.model.InvalidCredentialsException;
 import httpserver.application.todo.model.User;
+import httpserver.application.todo.model.UserManager;
 import httpserver.core.protocol.HttpRequest;
 import httpserver.core.protocol.HttpResponse;
 import httpserver.framework.RequestHandler;
@@ -9,30 +11,51 @@ import httpserver.framework.SessionManager;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ToDoListHandler implements RequestHandler {
-
-    //private static ArrayList<String> myToDoList = new ArrayList<>();
 
     public String handleRequest(HttpRequest request, HttpResponse response) {
         Session session = SessionManager.getSession(request);
-        User user = (User) session.getData("user");
-
-        String item = request.getParameter("toDoItem");
-        PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
-        item = policy.sanitize(item);
-        if (request.getParameter("remove") != null && !user.getTodos().isEmpty()) {
-            if (user.getTodos().contains(item)) {
-                user.removeTodo(item);
-            }
-            response.addParameter("toDoList", user.getTodos());
+        if (session == null) {
+            response.setStatus("302");
+            response.addHeader("location", "/todo/login");
             return "todo/todo.html";
-        } else if (request.getParameter("add") != null) {
-            user.addTodo(item);
         }
-        response.addParameter("toDoList", user.getTodos());
+
+        User user = (User) session.getData("user");
+        if (user == null) {
+            response.setStatus("302");
+            response.addHeader("location", "/todo/login");
+            return "todo/todo.html";
+        }
+
+        try {
+            UserManager.authenticate(user.getName(), user.getPassword());
+        } catch (InvalidCredentialsException e) {
+            response.setStatus("302");
+            response.addHeader("location", "/todo/login");
+            return "todo/todo.html";
+        }
+        String task;
+        PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+        if (request.getParameter("remove") != null) {
+            task = request.getParameter("toDoItem");
+            task = policy.sanitize(task);
+            if (user.getTodos().contains(task)) {
+                user.removeTodo(task);
+            }
+        }
+        if (request.getParameter("add") != null) {
+            task = request.getParameter("toDoItem");
+            task = policy.sanitize(task);
+            user.addTodo(task);
+        }
+        if(request.getParameter("logout") != null){
+            response.setStatus("302");
+            response.addHeader("location", "/todo/logout");
+            return "todo/todo.html";
+        }
+
+        response.addParameter("task", user.getTodos());
         return "todo/todo.html";
     }
 
