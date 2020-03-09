@@ -23,19 +23,19 @@ public class SessionManager {
 	/**
 	 * Creates a new session and adds a cookie header with its identifier.
 	 */
-	public static Session createSession(HttpRequest request, HttpResponse response) {
+	public static Session createSession(HttpResponse response) {
 		String id = createSessionId();
 		LOGGER.info("Creating session with id " + id);
 		Session session = new Session(id);
 		sessions.put(id, session);
-		response.addHeader(SET_COOKIE_HEADER, "session-id=" + id);
+		response.addHeader(SET_COOKIE_HEADER, "session-id=" + id + "; HttpOnly");
 		return session;
 	}
 
 	/**
 	 * Returns the session identified by the cookie header.
 	 */
-	public static Session getSession(HttpRequest request, HttpResponse response) {
+	public static Session getSession(HttpRequest request) {
 		String id = getSessionId(request);
 		if (id == null) return null;
 		LOGGER.info("Getting session with id " + id);
